@@ -1,3 +1,4 @@
+setDefaultTab("Neox")
 macro(1, 'Bug Map', function()
 if not g_keyboard.isCtrlPressed() then
 	if modules.corelib.g_keyboard.isKeyPressed('Up') then
