@@ -1,0 +1,73 @@
+outfitidWindow < MainWindow
+  !text: tr('OutfitHack Settings')
+  size: 200 160
+  @onEscape: self:hide()
+
+  BotLabel
+    id: OutfitID
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: center
+
+
+  Label
+    id: label1
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: center
+    text: ID da Outfit:
+    color: teal
+
+  TextEdit
+    id: IDAQUI
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: label1.bottom
+    margin-top: 5
+    text-align: center
+
+  BotSwitch
+    id: findOutfit
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: IDAQUI.bottom
+    text-align: center
+    text: FIND OUTFIT
+
+  HorizontalSeparator
+    id: separator
+    anchors.right: parent.right
+    anchors.left: parent.left
+    anchors.top: findOutfit.bottom
+    margin-bottom: 8 
+
+  Label
+    id: label2
+    anchors.top: separator.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: center
+    text: start to count!
+    color: teal
+
+  Button
+    id: closeButton
+    !text: tr('Close')
+    font: cipsoftFont
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    size: 45 21
+    margin-top: 15
+    margin-right: 5    
+
+  Button
+    id: resetButton
+    !text: tr('Reset')
+    font: cipsoftFont
+    anchors.left: parent.left
+    anchors.top: parent.bottom
+    size: 45 21
+    margin-top: -20
+    margin-right: 5   
