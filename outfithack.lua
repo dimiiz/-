@@ -1,4 +1,4 @@
-setDefaultTab("Main")
+setDefaultTab("Neox")
 
 local panelName = "outfit"
 local ui = setupUI([[
