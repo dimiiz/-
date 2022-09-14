@@ -1,7 +1,7 @@
-setDefaultTab("D.")
+
 
 --- TARGET HUD ---
-
+setDefaultTab("D.")
 local ui = setupUI([[
 Panel
   height:2000
