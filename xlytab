@@ -1,0 +1,403 @@
+setDefaultTab("D.")
+
+--- TARGET HUD ---
+
+local ui = setupUI([[
+Panel
+  height:2000
+  width: 2000
+
+  Label
+    id: bossName
+    text: None
+    font: verdana-11px-rounded
+    text-horizontal-auto-resize: true
+    color: red
+    text-align: center
+  Label
+    id: bossOutfit
+    text: None
+    font: verdana-11px-rounded
+    text-horizontal-auto-resize: true
+    color: red
+  ProgressBar
+    id: percent
+    background-color: white
+    text: 100%
+    width: 160
+    margin-right: 5
+
+    ]], modules.game_interface.getMapPanel())
+
+
+macro(1, function()
+if not g_game.isAttacking() then
+ ui:hide()
+
+elseif g_game.isAttacking() then
+  ui:show()
+  --- get attacking creature name
+   local mob = g_game.getAttackingCreature()
+   ui.bossName:setText("Name: ".. mob:getName())
+
+  --- get attacking creature health percent
+   local monsterHP = mob:getHealthPercent()
+   ui.percent:setText(monsterHP.."%")
+   ui.percent:setPercent(monsterHP)
+   ui.percent:setFont("terminus-14px-bold")
+
+  --- get the outfit --
+    ui.bossOutfit:setText("Outfit: ".. mob:getOutfit().type)
+    ui.bossOutfit:setColor("yellow")
+
+  if monsterHP == 100 then 
+    ui.percent:setBackgroundColor("white")
+   elseif monsterHP > 75 then
+    ui.percent:setBackgroundColor("green")
+   elseif monsterHP > 50 then
+    ui.percent:setBackgroundColor("yellow")
+   elseif monsterHP > 25 then
+    ui.percent:setBackgroundColor("orange")
+   elseif monsterHP > 1 then
+    ui.percent:setBackgroundColor("red")
+  end
+ end
+end)  
+
+
+g_ui.getRootWidget():recursiveGetChildById("bossName"):setPosition({x = 850, y = 105})
+g_ui.getRootWidget():recursiveGetChildById("percent"):setPosition({x = 850, y = 120})
+g_ui.getRootWidget():recursiveGetChildById("bossOutfit"):setPosition({x = 895, y = 140})
+
+
+
+----------------- RAINBOW OUTFIT -------------------
+
+macro(1, "Rainbow Outfit", function()
+  player:setOutfitShader("outfit_rainbow")
+end)
+
+-- PVP CLEAN
+
+local pvpclean = macro (1, "PvP - Clean Mode", function() end)
+
+  onAddThing(function(tile, thing)
+    if (thing:isEffect() or thing:isMissile()) and pvpclean.isOn() then
+        thing:hide()
+    end
+  end)
+
+  onStaticText(function(thing, text)
+    if not text:find('says:') and pvpclean.isOn() then
+        g_map.cleanTexts()
+    end
+  end)
+  
+-- OutfitHack (OTUI)
+  
+  outfitidWindow < MainWindow
+  !text: tr('OutfitHack Settings')
+  size: 200 160
+  @onEscape: self:hide()
+
+  BotLabel
+    id: OutfitID
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: center
+
+
+  Label
+    id: label1
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: center
+    text: ID da Outfit:
+    color: teal
+
+  TextEdit
+    id: IDAQUI
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: label1.bottom
+    margin-top: 5
+    text-align: center
+
+  BotSwitch
+    id: findOutfit
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: IDAQUI.bottom
+    text-align: center
+    text: FIND OUTFIT
+
+  HorizontalSeparator
+    id: separator
+    anchors.right: parent.right
+    anchors.left: parent.left
+    anchors.top: findOutfit.bottom
+    margin-bottom: 8 
+
+  Label
+    id: label2
+    anchors.top: separator.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    text-align: center
+    text: start to count!
+    color: teal
+
+  Button
+    id: closeButton
+    !text: tr('Close')
+    font: cipsoftFont
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    size: 45 21
+    margin-top: 15
+    margin-right: 5    
+
+  Button
+    id: resetButton
+    !text: tr('Reset')
+    font: cipsoftFont
+    anchors.left: parent.left
+    anchors.top: parent.bottom
+    size: 45 21
+    margin-top: -20
+    margin-right: 5   
+    
+-- Outfit Hack (LUA)
+
+local panelName = "outfit"
+local ui = setupUI([[
+Panel
+  height: 19
+
+  BotSwitch
+    id: titleoutfit
+    anchors.top: parent.top
+    anchors.left: parent.left
+    text-align: center
+    width: 130
+    !text: tr('OUTFIT HACK')
+
+  Button
+    id: outfitid
+    anchors.top: prev.top
+    anchors.left: prev.right
+    anchors.right: parent.right
+    margin-left: 3
+    height: 17
+    text: ID
+    color: teal
+
+  ]])
+  ui:setId(panelName)
+
+  if not storage[panelName] then
+  storage[panelName] = {
+    enabled = true,
+    outfitid = "0",
+    outfithack = false,
+    findOutfit = false
+  }
+  end
+
+  local config = storage[panelName]
+
+  ui.titleoutfit:setOn(config.enabled)
+  ui.titleoutfit.onClick = function(widget)
+  config.enabled = not config.enabled
+  widget:setOn(config.enabled)
+  end
+
+  ui.outfitid.onClick = function(widget)
+    outfitidWindow:show()
+    outfitidWindow:raise()
+    outfitidWindow:focus()
+  end
+
+  rootWidget = g_ui.getRootWidget()
+    if rootWidget then
+
+      outfitidWindow = UI.createWindow('outfitidWindow', rootWidget)
+      outfitidWindow:hide()
+
+      outfitidWindow.closeButton.onClick = function(widget)
+      outfitidWindow:hide()
+    end
+      outfitidWindow.IDAQUI.onTextChange = function(widget, text)
+      config.outfitid = text
+    end
+   outfitidWindow.IDAQUI:setText(config.outfitid)
+ end
+       outfitidWindow.findOutfit:setOn(config.findOutfit)
+      outfitidWindow.findOutfit.onClick = function(widget)
+      config.findOutfit = not config.findOutfit
+      widget:setOn(config.findOutfit)
+        end
+
+macro(1, function()
+if config.enabled then
+  if not config.findOutfit then
+    if player:getOutfit().type ~= tonumber(config.outfitid) then
+      player:setOutfit({type = tonumber(config.outfitid)})
+    end
+end
+end
+end)
+
+local tiype = 0
+macro(100,function()
+  if config.findOutfit then
+    tiype = tiype +1
+    player:setOutfit({type = tiype})
+    outfitidWindow.label2:setText(tiype)
+    outfitidWindow.label2:setColor("pink")
+end
+end)
+
+outfitidWindow.resetButton.onClick = function(widget)
+  tiype = 0
+  outfitidWindow.label2:setText("start to count!")
+  outfitidWindow.label2:setColor("teal")
+  player:setOutfit({type = tonumber(config.outfitid)})
+end
+
+-- Dancing
+
+macro(1, "Dance", function()
+    turn(math.random(0, 3))
+end)
+
+-- Config Edit
+
+macro(1, function()
+modules.game_bot.contentsPanel.editConfig:hide()
+
+local on = modules.game_bot.contentsPanel.enableButton
+on:setFont("terminus-14px-bold")
+local edit = modules.game_bot.editWindow
+edit:setText("@wful")
+edit:setColor("orange")
+edit:setFont("terminus-14px-bold")
+
+local qw = modules.game_bot.contentsPanel.config
+qw:setText("@wful")
+qw:setColor("orange")
+qw:setFont("terminus-14px-bold")
+
+local uu = modules.game_bot.botWindow
+uu:setText("@wful")
+uu:setColor("orange")
+uu:setFont("terminus-14px-bold")
+
+local rr = modules.game_bot.contentsPanel.messages 
+rr:setColor("orange")
+end)
+
+-- Bless
+
+local widget = setupUI([[
+Panel
+  height:2000
+  width: 2000
+
+
+
+
+  Label
+    id: blesstext
+    height: 12
+    color: #FFE4C4
+    font: terminus-14px-bold  
+    background-color: #00000090
+    opacity: 0.87
+    text-auto-resize: true
+    text-align: center
+    ]], modules.game_interface.getMapPanel())
+
+
+
+BLESS = "Loading..."
+
+macro(1, "Be Blessed!", function()
+  widget.blesstext:setText("BLESS: ".. BLESS)
+    if BLESS == "Loading..." then
+      say("!bless")
+    end
+  end)
+
+onTextMessage(function(mode, text)
+
+  local find_msg = "todas as bless" -- msg de bless comprada
+  local find_money = "precisa de 10 gold para comprar a bless" -- msg sem dinheiro
+        if text:lower():find(find_msg) then
+            BLESS = "Blessed"
+        elseif text:lower():find(find_money) then
+            BLESS = "No Money"    
+        end
+      end)
+
+g_ui.getRootWidget():recursiveGetChildById("blesstext"):setPosition({x = 10, y = 90})
+
+
+-- Autoloot
+
+local autoloot = {}
+onTextMessage(function(mode, text)
+    if mode == 20 and text:find("You see") then
+        local regex = [[You see (?:an|a)([a-z A-Z]*).]]
+        local data = regexMatch(text, regex)[1]
+        if data and data[2] then
+            autoloot.name = data[2]:trim()
+        end
+    end
+end)
+
+modules.game_interface.addMenuHook("category", "Autoloot", function(menuPosition, lookThing, useThing) 
+    g_game.look(useThing)
+        schedule(500, function()
+            if useThing:getCount() < 2 then
+                if autoloot.name then
+                    say("!autoloot add, "..autoloot.name)
+                    modules.game_textmessage.clearMessages()
+                    autoloot.name = nil
+                end
+            else
+                warn("autoloot funciona apenas com item com 1 unidade")
+            end
+        end)    
+ end, 
+
+function(menuPosition, lookThing, useThing, creatureThing)
+    for _, container in pairs(getContainers()) do
+        for _, item in ipairs(container:getItems()) do
+                if useThing:getId() == item:getId() then
+                    return true
+                end         
+            
+        end
+    end
+    return false 
+end )
+
+
+-- All Black
+
+macro(1, function()
+  for _, spec in ipairs(getSpectators()) do
+    if spec:isPlayer() and spec:getName() ~= player:getName() then
+      spec:setMarked("black")
+    elseif spec:isMonster() then
+      spec:setMarked("red")
+    elseif spec:isNpc() then
+      spec:setMarked("orange")
+end
+end
+end)  
+
+---------
