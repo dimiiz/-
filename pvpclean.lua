@@ -1,4 +1,4 @@
-setDefaultTab("Main")
+setDefaultTab("Neox")
 
 local pvpclean = macro (1, "PvP - Clean Mode", function() end)
 
