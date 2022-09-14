@@ -1,4 +1,0 @@
-macro(1, "teste" function()
- say("oi")
- end
- 
