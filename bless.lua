@@ -21,6 +21,7 @@ Panel
 
 BLESS = "Loading..."
 
+setDefaultTab("Neox")
 macro(1, "Be Blessed!", function()
   widget.blesstext:setText("BLESS: ".. BLESS)
     if BLESS == "Loading..." then
